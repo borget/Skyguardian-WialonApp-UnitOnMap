@@ -1,0 +1,160 @@
+html, body {
+     height: 100%;
+     margin: 0px;
+     font-family: Arial, Helvetica, sans-serif;
+     cursor: default;
+}
+
+#page {
+    min-height: 100%;      
+}
+
+#header {
+    height: 72px;
+    color: rgb(0, 51, 102);
+    background-color: #fff;
+    border-bottom: 1px solid #21344f;
+} 
+
+#header img {
+	margin: 18px 0px 0px 35px;
+}
+
+#user_info {
+	position: absolute;
+	top: 25px;
+	right: 20px;
+	font-size: 16px;
+	color: #777;
+}
+
+#content {    	
+    width: 100%;
+    position: absolute;
+    top: 73px;
+    bottom: 0px;
+    min-height: 100px; 
+    min-width: 500px;
+    height: auto; 
+}
+
+#left_column {
+	float: left;
+	height:100%;	
+	width: 430px;
+}
+
+#right_column {
+	position: absolute;
+	left: 430px;
+	right: 0px;
+	width: auto;
+	height:100%;
+	padding: 0px;
+}
+
+#map_id {
+	width: 100%;
+	height: 100%;
+}
+
+.y-scroll-container{
+	height: 100%;	
+	overflow-y: auto;
+	position: relative;
+}
+
+a{
+	color: #21344f;
+	text-decoration: none;
+}
+
+.tbl{
+	width: 100%;
+	background-color: #fff;
+	border-spacing: 0;
+	border-collapse: collapse;
+	font-size:12px;	
+	position: absolute;	
+}
+.tbl td{
+	padding: 3px;	
+	border-bottom: 1px solid #d1ddea;	
+	color: #21344f;
+}
+.tbl td[id^="unit_time"]{
+    white-space: nowrap;
+}
+
+.tbl th{
+	padding: 5px;
+	background-color: #21344f;
+	color: #ccc;	
+	text-align: left;
+}
+
+.centered {
+	text-align: center;
+}
+
+.shorten-container {
+	max-width: 160px;
+}
+
+.shorten {
+	max-width: 160px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+#icon_col {
+	min-width:24px;
+	width:24px;
+}
+
+#name_col {
+	width: 100%;
+}
+
+#lmsg_col {
+	min-width:110px;
+	width:110px;
+}
+
+#speed_col {
+	min-width:60px;
+	width:60px;
+}
+
+
+/*---------------------- Marker tooltip ------------------------------*/
+.olMarkerLabel { 	
+	font-family: Arial, Helvetica, sans-serif;
+	color: #21344f; 
+	background-color: #fff; 
+	width: auto; 
+	padding: 2px 5px; 
+	border: 1px #21344f solid; 
+	z-index: 1000; 
+	opacity: 0.8;
+	text-align: center;
+}
+
+.label-title {
+	font-size: 11px;
+	font-weight: bold;
+	white-space: nowrap;
+}
+
+.olMarkerLabel table{
+	border-spacing: 0;
+	border-collapse: collapse;
+	text-align: left;
+}
+
+.olMarkerLabel table td{
+	font-size: 11px; 	
+	padding: 0px;
+	white-space: nowrap;
+}

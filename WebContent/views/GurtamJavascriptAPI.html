@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<style>
+#log {
+  border: 1px solid #c6c6c6;
+}
+</style>
+
+</head>
+<body>
+Username: <input type="text" value="b3test_en" id="uname"/>
+Password: <input type="password" value="test" id="pass"/><br/>
+<input type="button" value="login" id="login_btn" />
+<input type="button" value="logout" id="logout_btn" />
+<input type="button" value="get user" id="user_btn" />
+<div id="log"></div>
+<script type='text/javascript' src='http://code.jquery.com/jquery-latest.min.js'></script>
+<script type='text/javascript' src='../lib/wialon.js'></script>
+<script type='text/javascript'>
+// Print message to log
+function msg(text) { $("#log").prepend(text + "<br/>"); }
+
+// Login to server using entered username and password
+function login() {
+    var sess = wialon.core.Session.getInstance(); // get instance of current Session
+	var user = sess.getCurrUser(); // get current User
+	if( user ) { // if user exists - you are already logged, print username to log
+	    msg("You are logged as '" + user.getName()+"', click logout button first"); return; 
+    }
+  
+    // if not logged
+	var uname = $("#uname").val(); // get username from input
+	var pass = $("#pass").val(); // get password from input
+	if( !uname ){ // if username is empty - print message to log
+	    msg("Enter username"); return;
+    } 
+
+	msg("Trying to login as '"+ uname +"'");
+	sess.initSession("https://hst-api.wialon.com"); // initialize Wialon session
+	sess.login(uname, pass, "", // trying login 
+		function (code) { // login callback
+			if (code) msg(wialon.core.Errors.getErrorText(code)); // login failed, print error
+			else msg("Logged successfully"); // login succeed
+		}
+	);
+}
+
+// Logout
+function logout() {
+	var user = wialon.core.Session.getInstance().getCurrUser(); // get current user
+	if (!user){ msg("You are not logged, click 'login' button"); return; } 
+	wialon.core.Session.getInstance().logout( // if user exist - logout
+		function (code) { // logout callback
+			if (code) msg(wialon.core.Errors.getErrorText(code)); // logout failed, print error
+			else msg("Logout successfully"); // logout suceed
+		}
+	);
+}
+
+// Get current user and prints its name to log
+function getUser() {
+	var user = wialon.core.Session.getInstance().getCurrUser(); // get current user
+    // print message 
+	if (!user) msg("You are not logged, click 'login' button"); // user not exists
+	else msg("You are logged as '" + user.getName() + "'"); // print current user name
+}
+
+// execute when DOM ready
+$(document).ready(function(){
+    // bind actions to buttons click
+	$("#login_btn").click( login );
+	$("#logout_btn").click( logout );
+	$("#user_btn").click( getUser );
+});
+
+</script>
+</body>
+</html>

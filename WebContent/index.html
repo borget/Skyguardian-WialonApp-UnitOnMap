@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<!-- ************************************************************************
+
+   Apps - WEB applications, developed on the basis of SDK for Wialon Hosting and Wialon Kit.
+
+   http://apps.wialon.com
+
+   Copyright:
+     2002-2013 Gurtam, http://gurtam.com
+
+   License:
+     MIT: https://github.com/wialon/wialon-app-onewialon/blob/master/LICENSE-MIT
+
+   Authors:
+     * Gurtam
+
+************************************************************************ -->
+
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="./css/style.css"/>
+		<link rel="icon" type="image/png" href="./img/favicon.ico">
+		<title>Wialon One</title>
+	</head>
+	<body>
+	<div id="page">
+		<div id="header">
+			<img src="./img/logo.png" alt="One wialon"/>
+			<div id="user_info">
+				<span id="user_name_id"></span>
+			</div>
+		</div>
+		<div id="content">
+			<div id="left_column">
+				<div class="y-scroll-container">
+					<table class="tbl">
+						<thead>
+							<tr>
+								<th id="icon_col"></th>
+								<th id="name_col"></th> 
+								<th id="lmsg_col"></th> 
+								<th id="speed_col"></th> 
+							</tr>
+						</thead>
+						<tbody id="units_tbl"></tbody>
+					</table>
+				</div>
+			</div>
+			<div id="right_column">
+				<div id="map_id"></div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="./js/OpenLayers.js"></script>
+		<script type="text/javascript" src="./js/jquery-1.8.3.min.js"></script>
+		<script type="text/javascript" src="./js/jquery-ui.js"></script>
+		<script type="text/javascript" src="./js/WebGis.js"></script>
+		<script type="text/javascript" src="./js/GPanZoomBar.js"></script>
+		<script type="text/javascript" src="./js/GNavigation.js"></script>
+		<script type="text/javascript" src="./js/GMap.js"></script>
+		<script type="text/javascript" src="./js/GMarker.js"></script>
+		<script type="text/javascript" src="./js/jquery.localisation.js"></script>
+		<script type="text/javascript" src="./js/main.js" ></script>
+	</body>
+</html>
