@@ -10,7 +10,6 @@ module Utils {
 		
 		public init = ():void => {
 			ko.applyBindings(this.loginMainPageViewModel);
-			
 		}
 	}
 }

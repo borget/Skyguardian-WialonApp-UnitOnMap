@@ -36,14 +36,15 @@
 			</div>
 
 			<h2 class="form-signin-heading">Localizador de unidad</h2>
+			<div class="alert alert-danger" role="alert" data-bind="visible: hasError"><p data-bind="text: messageError"></p></div>
 			<label for="user" class="sr-only">User</label> 
 			<input type="text" id="user" data-bind="value: userName" class="form-control" placeholder="Usuario" required autofocus>
 			<label for="password" class="sr-only">Password</label>
-			<input type="text" id="password" data-bind="value: password" class="form-control" placeholder="Contraseña" required>
+			<input type="password" id="password" data-bind="value: password" class="form-control" placeholder="Contraseña" required>
 			<label for="unitId" class="sr-only">ID Unidad</label>
 			<input type="text" id="unitId" data-bind="value: unitId" class="form-control" placeholder="ID Unidad" required>
 			<hr>
-			<button class="btn btn-lg btn-primary btn-block" type="submit" data-bind="click: openWialonMapApp">Entrar</button>
+			<button class="btn btn-lg btn-primary btn-block" type="submit" data-bind="click: doLogin">Entrar</button>
 			
 		</form>
 
@@ -52,16 +53,18 @@
 	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug >
     <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script-->
     <script src="../js/jquery-2.1.1.min.js"></script>
+    <script src="../js/wialon.js"></script>
     <script src="../js/bootstrap.min.js"></script>
     <script src="../js/knockout-3.2.0.js"></script>
     <script src="../js/underscore-min.js"></script>
     <script src="../scripts/utils/App.js"></script>
     <script src="../scripts/viewmodel/LoginMainPageViewModel.js"></script>
+    <script src="../scripts/viewmodel/WialonSessionViewModel.js"></script>
+    <script src="../scripts/utils/Constants.js"></script>
     <script type="text/javascript">
     	$( document ).ready(function() {
     		app = new Utils.App();
     		app.init();
-    		
     	});
     </script>
 </body>
