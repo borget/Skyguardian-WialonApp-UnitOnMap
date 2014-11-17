@@ -42,7 +42,12 @@
 			<label for="password" class="sr-only">Password</label>
 			<input type="password" id="password" data-bind="value: password" class="form-control" placeholder="Contraseña" required>
 			<label for="unitId" class="sr-only">ID Unidad</label>
-			<input type="text" id="unitId" data-bind="value: unitId" class="form-control" placeholder="ID Unidad" required>
+			<!--input type="text" id="unitId" data-bind="value: unitId" class="form-control" placeholder="ID Unidad" required -->
+			<select data-bind="options: unitList, 
+								optionsValue: 'unitId', 	 
+								optionsText: function(item) {
+                       							return item.unitId + ' - ' + item.unitName
+                   							}" class="form-control"></select>
 			<hr>
 			<button class="btn btn-lg btn-primary btn-block" type="submit" data-bind="click: doLogin">Entrar</button>
 			
@@ -60,6 +65,7 @@
     <script src="../scripts/utils/App.js"></script>
     <script src="../scripts/viewmodel/LoginMainPageViewModel.js"></script>
     <script src="../scripts/viewmodel/WialonSessionViewModel.js"></script>
+    <script src="../scripts/viewmodel/UnitViewModel.js"></script>
     <script src="../scripts/utils/Constants.js"></script>
     <script type="text/javascript">
     	$( document ).ready(function() {
