@@ -9,32 +9,32 @@ var Skyguardian;
     var LoginMainPageViewModel = (function () {
         function LoginMainPageViewModel() {
             var _this = this;
-            this.openWialonMapApp = function () {
-                window.location.href = Utils.Constants.WIALON_APP + _this.userName() + "&sid=" + _this.wialonSession.sid;
-            };
-            this.doLogin = function () {
-                var sess = wialon.core.Session.getInstance();
-                var user = sess.getCurrUser();
-                if (user) {
-                    _this.openWialonMapApp();
-                }
-
-                // if not logged
-                if (_this.isValid()) {
-                    sess.initSession("https://hst-api.wialon.com"); // initialize Wialon session
-                    sess.login(_this.userName(), _this.password(), "", _this.loginCallback);
+            this.openWialonApp = function () {
+                if (_this.unitList() != undefined && _this.unitList().length > 0) {
+                    window.location.href = Utils.Constants.WIALON_APP + _this.userName() + "&sid=" + _this.wialonSession.sid + "&unitId=" + _this.selectedUnit().unitId;
                 } else {
-                    _this.showError("Todos los campos son requeridos");
+                    _this.showError("Seleccione una unidad a localizar.");
                 }
             };
-            this.loginCallback = function (code) {
+            this.populateUnitsList = function () {
+                if (_this.isValidForm()) {
+                    _this.doLogin(_this.loadUnitsHandler);
+                } else {
+                    _this.showError("El nombre de usuario y contraseña son campos requeridos.");
+                }
+            };
+            this.doLogin = function (callback) {
+                var session = wialon.core.Session.getInstance();
+                session.initSession(Utils.Constants.GURTAM_BASE_URL); // initialize Wialon session
+                session.login(_this.userName(), _this.password(), "", callback);
+            };
+            this.loadUnitsHandler = function (code) {
                 if (code) {
                     // login failed, print error
                     _this.showError(wialon.core.Errors.getErrorText(code));
                 } else {
                     _this.wialonSession.sid = wialon.core.Session.getInstance().getId();
                     _this.loadUnits();
-                    //this.openWialonMapApp();
                 }
             };
             this.loadUnits = function () {
@@ -70,7 +70,7 @@ var Skyguardian;
                     //$("#units").change( getSelectedUnitInfo );
                 });
             };
-            this.isValid = function () {
+            this.isValidForm = function () {
                 var isValidContext = false;
                 if (_this.userName() != undefined && _this.userName().trim() != "" && _this.password() != undefined && _this.password().trim() != "") {
                     isValidContext = true;
@@ -88,9 +88,13 @@ var Skyguardian;
             this.wialonSession = new Skyguardian.WialonSessionViewModel();
             this.userName = ko.observable();
             this.password = ko.observable();
-            this.unitList = ko.observableArray();
+            this.unitList = ko.observableArray(new Array());
             this.hasError = ko.observable();
             this.messageError = ko.observable();
+            this.selectedUnit = ko.observable(new Skyguardian.UnitViewModel(0, ""));
+            this.hasUnits = ko.computed(function () {
+                return _this.unitList().length > 0;
+            });
         }
         return LoginMainPageViewModel;
     })();

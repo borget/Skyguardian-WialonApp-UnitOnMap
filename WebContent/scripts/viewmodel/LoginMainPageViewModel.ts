@@ -12,53 +12,59 @@ module Skyguardian {
 		public hasError: KnockoutObservable<boolean>;
 		public messageError: KnockoutObservable<string>;
 		public wialonSession: Skyguardian.WialonSessionViewModel;
+		public selectedUnit: KnockoutObservable<Skyguardian.UnitViewModel>;
+		public hasUnits: KnockoutComputed<boolean>;
 		
 		constructor(){
 			this.wialonSession = new Skyguardian.WialonSessionViewModel();
 			this.userName = ko.observable<string>();
 			this.password = ko.observable<string>();
-			this.unitList = ko.observableArray<Skyguardian.UnitViewModel>();
+			this.unitList = ko.observableArray<Skyguardian.UnitViewModel>(new Array());
 			this.hasError = ko.observable<boolean>();
 			this.messageError = ko.observable<string>();
+			this.selectedUnit = ko.observable<Skyguardian.UnitViewModel>(new Skyguardian.UnitViewModel(0,""));
+			this.hasUnits = ko.computed(()=> {
+				return this.unitList().length > 0;
+			});
 		}
 		
-		public openWialonMapApp = () : void => {
-			window.location.href = Utils.Constants.WIALON_APP+this.userName()+"&sid="+this.wialonSession.sid;
+		
+		public openWialonApp = () : void => {
+			if (this.unitList() != undefined && this.unitList().length >0) {
+				window.location.href = Utils.Constants.WIALON_APP+this.userName()+"&sid="+this.wialonSession.sid+"&unitId="+this.selectedUnit().unitId;	
+			} else {
+				this.showError("Seleccione una unidad a localizar.");
+			}
 		}
 		
-		public doLogin = () : any => {
-            var sess = wialon.core.Session.getInstance(); // get instance of current Session
-            var user = sess.getCurrUser(); // get current User
-            if (user) { // if user exists - you are already logged, print username to log
-				this.openWialonMapApp();
-            }
-
-            // if not logged
-            if (this.isValid()) { 
-                sess.initSession("https://hst-api.wialon.com"); // initialize Wialon session
-            	sess.login(this.userName(), this.password(), "", // trying login 
-					this.loginCallback
-            	);
-            } else {
-            	this.showError("Todos los campos son requeridos");
-            }
+		public populateUnitsList = () : any => {
+			if (this.isValidForm()) {
+				this.doLogin(this.loadUnitsHandler); 
+			}
+			else {
+				this.showError("El nombre de usuario y contraseña son campos requeridos.");
+			}
 		}
 		
-		private loginCallback = (code: any):void =>{
+		private doLogin = (callback:Function) => {
+		    var session = wialon.core.Session.getInstance(); // get instance of current Session
+            session.initSession(Utils.Constants.GURTAM_BASE_URL); // initialize Wialon session
+          	session.login(this.userName(), this.password(), "", callback); 
+		}
+		
+		private loadUnitsHandler = (code: any):void =>{
             if (code) {
                 // login failed, print error
                 this.showError(wialon.core.Errors.getErrorText(code));
             }
             else {
-                this.wialonSession.sid = wialon.core.Session.getInstance().getId();
+            	this.wialonSession.sid = wialon.core.Session.getInstance().getId();
                 this.loadUnits();
-                //this.openWialonMapApp();
             }
 		}
 		
 		private loadUnits = ():void => {
 			var unitsVMArray: Array<Skyguardian.UnitViewModel> = new Array<Skyguardian.UnitViewModel>();
-			
 			
 			var sess = wialon.core.Session.getInstance(); // get instance of current Session
 			// flags to specify what kind of data should be returned
@@ -90,11 +96,10 @@ module Skyguardian {
 		            // bind action to select change event
 				    //$("#units").change( getSelectedUnitInfo );
 			    }
-	);
-			
+			);
 		}
 		
-		private isValid = ():boolean => {
+		private isValidForm = ():boolean => {
 			var isValidContext:boolean = false;
 			if (this.userName() != undefined && this.userName().trim() != "" && 
 				 this.password() != undefined && this.password().trim() != "") {

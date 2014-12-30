@@ -1,65 +1,143 @@
+
+
 <!DOCTYPE html>
-<!-- ************************************************************************
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" type="image/png" href="./img/favicon.ico">
 
-   Apps - WEB applications, developed on the basis of SDK for Wialon Hosting and Wialon Kit.
+    <title>Skyguardian Locator</title>
 
-   http://apps.wialon.com
+    <!-- Bootstrap core CSS -->
+	<link href="./css/bootstrap.min.css" rel="stylesheet">
 
-   Copyright:
-     2002-2013 Gurtam, http://gurtam.com
+    <!-- Custom styles for this template -->
+    <link href="./css/dashboard.css" rel="stylesheet">
 
-   License:
-     MIT: https://github.com/wialon/wialon-app-onewialon/blob/master/LICENSE-MIT
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+     <style>
+        body {
+            padding-top: 60px;
+            padding-bottom: 40px;
+        }
+        #map_id {
+            height: 600px;
+  			width: 100%;
+        }
+ 
+        .olControlAttribution {
+            bottom: 3px;
+            left: 10px;
+            line-height: 9px;
+            font-size: 9px;
+            color: #ccc;
+        }
+        img.olTileImage {
+        	max-width: none;
+    	}
+    	/*---------------------- Marker tooltip ------------------------------*/
+		.olMarkerLabel { 	
+			font-family: Arial, Helvetica, sans-serif;
+			color: #21344f; 
+			background-color: #fff; 
+			width: auto; 
+			padding: 2px 5px; 
+			border: 1px #21344f solid; 
+			z-index: 1000; 
+			opacity: 0.8;
+			text-align: center;
+		}
+		
+		.label-title {
+			font-size: 11px;
+			font-weight: bold;
+			white-space: nowrap;
+		}
+		
+		.olMarkerLabel table{
+			border-spacing: 0;
+			border-collapse: collapse;
+			text-align: left;
+		}
+		
+		.olMarkerLabel table td{
+			font-size: 11px; 	
+			padding: 0px;
+			white-space: nowrap;
+		}
+    </style>
+  </head>
 
-   Authors:
-     * Gurtam
+  <body>
 
-************************************************************************ -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand">Localizador de unidad</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#"><span data-bind="text: userName"></span> <i class="glyphicon glyphicon-user"></i></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
-<html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="./css/style.css"/>
-		<link rel="icon" type="image/png" href="./img/favicon.ico">
-		<title>Wialon One</title>
-	</head>
-	<body>
-	<div id="page">
-		<div id="header">
-			<img src="./img/logo.png" alt="One wialon"/>
-			<div id="user_info">
-				<span id="user_name_id"></span>
+    <div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-4 col-md-3 sidebar">
+				<div class="panel panel-primary">
+                        <div class="panel-heading">
+                        	<div class="row">
+								<div class="col-md-6"><span>Unidad: </span><span data-bind="text: unitName"></span></div>
+								<div class="col-md-6"><span>ID: </span><span data-bind="text: unitId"></span></div>
+							</div>
+                            
+                        </div>
+                        <div class="panel-body">
+							<div class="row">
+								<div class="col-md-2"><img class="img-circle" data-bind="attr: { src: unitIconUrl }"></div>
+								<div class="col-md-3"><span><b>Ubicación:</b></span></div>
+								<div class="col-md-7"><span data-bind="text: unitLocation"></span></div>
+							</div>
+						</div>
+                    </div>
 			</div>
-		</div>
-		<div id="content">
-			<div id="left_column">
-				<div class="y-scroll-container">
-					<table class="tbl">
-						<thead>
-							<tr>
-								<th id="icon_col"></th>
-								<th id="name_col"></th> 
-								<th id="lmsg_col"></th> 
-								<th id="speed_col"></th> 
-							</tr>
-						</thead>
-						<tbody id="units_tbl"></tbody>
-					</table>
+			<div class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 main">
+				<h1 class="page-header">Skyguardian Maps</h1>
+				<div class="container-fluid">
+					<div class="row-fluid">
+						<div class="span12">
+							<div id="map_id" class="map"></div>
+						</div>
+					</div>
 				</div>
-			</div>
-			<div id="right_column">
-				<div id="map_id"></div>
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript" src="./js/OpenLayers.js"></script>
-		<script type="text/javascript" src="./js/jquery-1.8.3.min.js"></script>
-		<script type="text/javascript" src="./js/jquery-ui.js"></script>
-		<script type="text/javascript" src="./js/WebGis.js"></script>
-		<script type="text/javascript" src="./js/GPanZoomBar.js"></script>
-		<script type="text/javascript" src="./js/GNavigation.js"></script>
-		<script type="text/javascript" src="./js/GMap.js"></script>
-		<script type="text/javascript" src="./js/GMarker.js"></script>
-		<script type="text/javascript" src="./js/jquery.localisation.js"></script>
-		<script type="text/javascript" src="./js/main.js" ></script>
-	</body>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/javascript" src="./js/OpenLayers.js"></script>
+	<script type="text/javascript" src="./js/jquery-1.8.3.min.js"></script>
+	<script src="./js/knockout-3.2.0.js"></script>
+	<script type="text/javascript" src="./js/jquery-ui.js"></script>
+	<script type="text/javascript" src="./js/WebGis.js"></script>
+	<script type="text/javascript" src="./js/GPanZoomBar.js"></script>
+	<script type="text/javascript" src="./js/GNavigation.js"></script>
+	<script type="text/javascript" src="./js/GMap.js"></script>
+	<script type="text/javascript" src="./js/GMarker.js"></script>
+	<script type="text/javascript" src="./js/jquery.localisation.js"></script>
+	<script type="text/javascript" src="./js/main.js" ></script>
+
+  </body>
 </html>

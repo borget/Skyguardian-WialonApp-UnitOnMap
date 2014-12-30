@@ -4,6 +4,7 @@ var Utils;
         function Constants() {
         }
         Constants.WIALON_APP = "http://localhost:8080/Skyguardian-UnitMapTrackerWialonApp/?baseUrl=https://hst-api.wialon.com&hostUrl=http://by.hosting.wialon.com&lang=en&user=";
+        Constants.GURTAM_BASE_URL = "https://hst-api.wialon.com";
         return Constants;
     })();
     Utils.Constants = Constants;

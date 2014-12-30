@@ -24,14 +24,11 @@
 </head>
 
 <body>
-
 	<div class="container">
-
 		<form class="form-signin" role="form">
-
 			<div class="row">
 				<div class="col-sm-12">
-					<img src="../img/login.png" class="img-responsive" alt="...">
+					<img src="../img/skyguardian_logo.png" class="img-responsive" alt="...">
 				</div>
 			</div>
 
@@ -42,14 +39,16 @@
 			<label for="password" class="sr-only">Password</label>
 			<input type="password" id="password" data-bind="value: password" class="form-control" placeholder="Contraseña" required>
 			<label for="unitId" class="sr-only">ID Unidad</label>
+			<hr>
+			<button class="btn btn-lg btn-primary btn-block" type="submit" data-bind="click: populateUnitsList, enable: !hasUnits()">Listar Unidades</button>
 			<!--input type="text" id="unitId" data-bind="value: unitId" class="form-control" placeholder="ID Unidad" required -->
 			<select data-bind="options: unitList, 
-								optionsValue: 'unitId', 	 
-								optionsText: function(item) {
-                       							return item.unitId + ' - ' + item.unitName
+							   value: selectedUnit, 
+							   optionsText: function(item) {
+                       							return item.unitName + ' - ' + item.unitId
                    							}" class="form-control"></select>
 			<hr>
-			<button class="btn btn-lg btn-primary btn-block" type="submit" data-bind="click: doLogin">Entrar</button>
+			<button class="btn btn-lg btn-primary btn-block" type="submit" data-bind="click: openWialonApp">Localizar</button>
 			
 		</form>
 
@@ -68,7 +67,7 @@
     <script src="../scripts/viewmodel/UnitViewModel.js"></script>
     <script src="../scripts/utils/Constants.js"></script>
     <script type="text/javascript">
-    	$( document ).ready(function() {
+    	$(document).ready(function() {
     		app = new Utils.App();
     		app.init();
     	});

@@ -1,13 +1,21 @@
-/*
-* Site base configuration
-*/
+// This is a simple *viewmodel* - JavaScript that defines the data and behavior of the UI.
+var Skyguardian;
+(function (Skyguardian) {
+    var AppViewModel = (function () {
+        function AppViewModel() {
+        	this.unitId = "";
+        	this.userName = "";
+            this.unitName = "";
+            this.unitIconUrl = "";
+            this.unitLocation = ko.observable();
+        }
+        return AppViewModel;
+    })();
+    Skyguardian.AppViewModel = AppViewModel;
 
-// Wialon KIT
-//var GIS_URL = "http://render.mapsviewer.com/kit-api.wialon.com";
-
-// Wialon Hosting
-//var GIS_URL = "http://render.mapsviewer.com/hst-api.wialon.com";
-
+    Skyguardian.appViewModel = new Skyguardian.AppViewModel();
+})(Skyguardian || (Skyguardian = {}));
+// ------------------------------------------------------------
 var callbacks = {};
 
 /// Execute callback
@@ -80,8 +88,6 @@ function init_sdk () {
 	wialon.core.Session.getInstance().duplicate(get_url_parameter("sid"), user, true, login);
 }
 
-
-
 /**
 * Fetch default Gurtam maps map options
 */ 
@@ -104,10 +110,10 @@ function gurtam_maps_options(opts) {
 */
 function login(code) {
 	if (code) {
-		alert("Login error.");
+		alert("Su sesión ha expirado. Ingrese nuevamente...");
 		return;
 	}
-	$("#user_name_id").html(wialon.core.Session.getInstance().getCurrUser().getName());
+	//$("#user_name_id").html(wialon.core.Session.getInstance().getCurrUser().getName());
 	initEnv();
 }
 
@@ -206,10 +212,8 @@ function initEnv() {
             markersLayer.setVisibility(true);
             map.addLayer(markersLayer);
 
-            // init unit table
-            showUnits();
-
-
+            // init unit
+            showUnit();
         });
 	});		
 }
@@ -217,36 +221,53 @@ function initEnv() {
 /**
 * Show units in the table and on the map
 */
-function showUnits() {
+function showUnit() {
 	// get units
 	var units = wialon.core.Session.getInstance().getItems("avl_unit");	
-	if (!units || !units.length)
+	var unitId = get_url_parameter("unitId");
+	
+	if (!units || !units.length || !unitId) {
+		throw new Error("Units not found or unit id parameter not present.");
 		return;
-	//sort by name in ascending order
-	units.sort(function(unit1,unit2){
-		var name1 = unit1.getName().toLowerCase();
-		var name2 = unit2.getName().toLowerCase();
-		if(name1>name2)
-			return 1;
-		else
-			return -1;
-	});	
-	// populate table
-	for(var i=0;i<units.length;i++) {	
-		var unit = units[i];
-		addUnitRow(unit);		
-		// if map available - add to map
-		if(map)
-			createUnitMarker(unit);
-		// listen unit event
-		addUnitListener(unit);
+	}
+		
+	var unit = findUnitById(units, unitId);
+
+	if (!unit) {
+		throw new Error("Unit not found");
+		return;
 	}
 	
+	addUnitRow(unit);		
+		// if map available - add to map
+	if(map)
+		createUnitMarker(unit);
+		// listen unit event
+	addUnitListener(unit);
+	
+	goToMarker(unitId);
 	// center unit on map
 	$("a.row-name").click(function(e) {
 		var id = e.currentTarget.id.substr(10);		
 		goToMarker(id);
 	});
+	
+	knockoutjsInit(unit);
+}
+
+/**
+ * 
+ * @param units
+ * @param unitId
+ * @returns unit found.
+ */
+function findUnitById(units, unitId) {
+	for(var i=0;i<units.length;i++) {	
+		var unitItem = units[i];
+		if (unitItem.getId().toString() === unitId) {
+			return unitItem; 	
+		}
+	}
 }
 
 /**
@@ -437,4 +458,28 @@ $(document).ready(function () {
 	initControls();
 		
 	load_script(url, init_sdk);		
+	
 });
+
+function knockoutjsInit(unit) {
+	var userName = wialon.core.Session.getInstance().getCurrUser().getName();
+	Skyguardian.appViewModel.unitId = unit.getId();
+	Skyguardian.appViewModel.userName = userName;
+	Skyguardian.appViewModel.unitName = unit.getName();
+	Skyguardian.appViewModel.unitIconUrl = unit.getIconUrl();
+	// Activates knockout.js
+	ko.applyBindings(Skyguardian.appViewModel);
+	setUnitLocation(unit);
+}
+
+function setUnitLocation(unit) {
+	if(unit.getPosition()) {
+		var pos = unit.getPosition();
+		wialon.util.Gis.getLocations([{lat:pos.y,lon:pos.x}],function(code,data) {
+			if(code)
+				Skyguardian.appViewModel.unitLocation("Ubicación desconocida en este momento.");
+			else
+				Skyguardian.appViewModel.unitLocation(data[0]);
+		});		
+	}	
+}
