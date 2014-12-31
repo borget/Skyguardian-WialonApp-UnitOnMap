@@ -8,6 +8,9 @@ var Skyguardian;
             this.unitName = "";
             this.unitIconUrl = "";
             this.unitLocation = ko.observable();
+            this.unitSpeed = ko.observable();
+            this.unitTimeOfLstMsg = ko.observable();
+            this.unitLstMsgReport = ko.observable(); 
         }
         return AppViewModel;
     })();
@@ -16,6 +19,7 @@ var Skyguardian;
     Skyguardian.appViewModel = new Skyguardian.AppViewModel();
 })(Skyguardian || (Skyguardian = {}));
 // ------------------------------------------------------------
+
 var callbacks = {};
 
 /// Execute callback
@@ -113,7 +117,6 @@ function login(code) {
 		alert("Su sesión ha expirado. Ingrese nuevamente...");
 		return;
 	}
-	//$("#user_name_id").html(wialon.core.Session.getInstance().getCurrUser().getName());
 	initEnv();
 }
 
@@ -137,12 +140,6 @@ function initControls() {
 			resize();
 		};			
 	}
-	
-	// column names
-	$("#icon_col").html($.localise.tr("Icon"));
-	$("#name_col").html($.localise.tr("Name"));
-	$("#lmsg_col").html($.localise.tr("Last message"));
-	$("#speed_col").html($.localise.tr("Speed"));
 }
 
 /**
@@ -236,10 +233,8 @@ function showUnit() {
 	if (!unit) {
 		throw new Error("Unit not found");
 		return;
-	}
-	
-	addUnitRow(unit);		
-		// if map available - add to map
+	}		
+	// if map available - add to map
 	if(map)
 		createUnitMarker(unit);
 		// listen unit event
@@ -343,39 +338,17 @@ function redrawUnit(e) {
 	if (type == "changeName") {		
 		$("#unit_name_" + unit.getId()+" div").html(unit.getName());
 	} else if (type == "changePosition") {		
-		$("#unit_speed_" + unit.getId()).html( ((getMeasureUnits(unit)) ? Math.round( unit.getPosition().s / 1.609344) : unit.getPosition().s) +"&nbsp;" + ( (getMeasureUnits(unit)) ? $.localise.tr("mph") : $.localise.tr("km/h") ));
 		moveMarker(unit);
+		setUnitLocation(unit);
+		setUnitSpeed(unit);
 	} else if (type == "changeLastMessage") {		
-		var tm = unit.getLastMessage().t;
-		$("#unit_time_" + unit.getId()).html( wialon.util.DateTime.formatTime(tm, 0, enFormatTime) );
-	} else if (type == "changeIcon") {		var imgUrl = unit.getIconUrl();
+		setUnitTimeOfLstMsg(unit);
+		setReportParameters(unit);
+	} else if (type == "changeIcon") {		
+		var imgUrl = unit.getIconUrl();
 		$("#unit_img_" + unit.getId() + " img").attr("src",imgUrl);
 		markersArray[unit.getId()].setUrl(imgUrl);
 	}
-}
-
-/**
-* Add row to the table of units 
-* @param unit {Object} wialon unit object
-*/
-function addUnitRow(unit) {
-	if (!unit)
-		return;	
-	var lastMessage = unit.getLastMessage();
-	var tm = "-";
-	if(lastMessage)
-		tm = lastMessage.t;	
-	var speed = "-";
-	if(unit.getPosition())
-		speed = ((getMeasureUnits(unit)) ? Math.round( unit.getPosition().s / 1.609344) : unit.getPosition().s) + "&nbsp;" + ( (getMeasureUnits(unit)) ? $.localise.tr("mph") : $.localise.tr("km/h") );
-	var id = unit.getId();
-	var html = "<tr>"
-		+ "<td class='centered' id='unit_img_" + id + "'><img src='" + unit.getIconUrl(24) + "'/></td>"
-		+ "<td id='unit_name_" + id + "' class='shorten-container'><div class='shorten'>" + (speed=="-" ? "":"<a class='row-name' href='#' id='unit_name_"+ id +"'>") + unit.getName() + (speed=="-" ? "":"</a>") + "</div></td>"	
-		+ "<td id='unit_time_" + id + "'>" + (tm!="-"?wialon.util.DateTime.formatTime(tm, 0, enFormatTime):tm) + "</td>"
-		+ "<td id='unit_speed_" + id + "'>" + speed + "</td>"	
-		+ "</tr>";
-	$("#units_tbl").append(html);
 }
 
 /**
@@ -470,6 +443,9 @@ function knockoutjsInit(unit) {
 	// Activates knockout.js
 	ko.applyBindings(Skyguardian.appViewModel);
 	setUnitLocation(unit);
+	setUnitSpeed(unit);
+	setUnitTimeOfLstMsg(unit);
+	setReportParameters(unit);
 }
 
 function setUnitLocation(unit) {
@@ -477,9 +453,34 @@ function setUnitLocation(unit) {
 		var pos = unit.getPosition();
 		wialon.util.Gis.getLocations([{lat:pos.y,lon:pos.x}],function(code,data) {
 			if(code)
-				Skyguardian.appViewModel.unitLocation("Ubicación desconocida en este momento.");
+				Skyguardian.appViewModel.unitLocation("No disponible en este momento.");
 			else
 				Skyguardian.appViewModel.unitLocation(data[0]);
 		});		
 	}	
+}
+
+function setUnitSpeed(unit) {
+	Skyguardian.appViewModel.unitSpeed(((getMeasureUnits(unit)) ? Math.round( unit.getPosition().s / 1.609344) : unit.getPosition().s) + " " + ( (getMeasureUnits(unit)) ? $.localise.tr("mph") : $.localise.tr("km/h")));
+}
+
+function setUnitTimeOfLstMsg(unit) {
+	var tm = "-";
+	var lastMessage = unit.getLastMessage();
+	if(lastMessage)
+		tm = lastMessage.t;
+	
+	tm = (tm !== "-"? wialon.util.DateTime.formatTime(tm, 0, enFormatTime):tm);
+	tm = tm.replace(/&nbsp;/gi, " ");
+	
+	Skyguardian.appViewModel.unitTimeOfLstMsg(tm);
+}
+
+function setReportParameters(unit) {
+	var params = undefined;
+	var lastMessage = unit.getLastMessage();
+	if(lastMessage)
+		params = lastMessage.p;
+	if (params) 
+		Skyguardian.appViewModel.unitLstMsgReport(params);
 }

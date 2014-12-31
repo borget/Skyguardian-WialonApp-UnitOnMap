@@ -7,6 +7,52 @@ body {
   padding-top: 50px;
 }
 
+#map_id {
+    height: 500px;
+	width: 100%;
+}
+
+.olControlAttribution {
+    bottom: 3px;
+    left: 10px;
+    line-height: 9px;
+    font-size: 9px;
+    color: #ccc;
+}
+img.olTileImage {
+	max-width: none;
+}
+/*---------------------- Marker tooltip ------------------------------*/
+.olMarkerLabel { 	
+	font-family: Arial, Helvetica, sans-serif;
+	color: #21344f; 
+	background-color: #fff; 
+	width: auto; 
+	padding: 2px 5px; 
+	border: 1px #21344f solid; 
+	z-index: 1000; 
+	opacity: 0.8;
+	text-align: center;
+}
+
+.label-title {
+	font-size: 11px;
+	font-weight: bold;
+	white-space: nowrap;
+}
+
+.olMarkerLabel table{
+	border-spacing: 0;
+	border-collapse: collapse;
+	text-align: left;
+}
+
+.olMarkerLabel table td{
+	font-size: 11px; 	
+	padding: 0px;
+	white-space: nowrap;
+}
+
 
 /*
  * Global add-ons
