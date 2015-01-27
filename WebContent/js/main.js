@@ -11,6 +11,7 @@ var Skyguardian;
             this.unitSpeed = ko.observable();
             this.unitTimeOfLstMsg = ko.observable();
             this.unitLstMsgReport = ko.observable(); 
+            this.hasError = ko.observable();
         }
         return AppViewModel;
     })();
@@ -55,8 +56,7 @@ function get_url_parameter(name) {
 	return null;
 }
 
-/// Load scripts
-function load_script(src, callback) {
+function load_wsdk(src, callback) {
 	var script = document.createElement("script");
 	script.setAttribute("type","text/javascript");
 	script.setAttribute("charset","UTF-8");
@@ -77,19 +77,28 @@ function load_script(src, callback) {
 }
 /// Init SDK
 function init_sdk () {
-	var url = get_url_parameter("baseUrl");
-	if (!url) {
-		url = get_url_parameter("hostUrl");
-	}
-	if (!url) {
-		return null;
-	}
 	var user = get_url_parameter("user");
-	if(!user)
-		return null;
-	
-	wialon.core.Session.getInstance().initSession(url, "", 0x800);
-	wialon.core.Session.getInstance().duplicate(get_url_parameter("sid"), user, true, login);
+	var password = get_url_parameter("password");
+	if(!user || !password)
+		throw new Error("Expected user/password parameters are not present.");
+	doLogin(user, password, loginHandler);
+}
+
+
+function doLogin (user, password, callback) {
+    var session = wialon.core.Session.getInstance(); // get instance of current Session
+    session.initSession("https://hst-api.wialon.com"); // initialize Wialon session
+  	session.login(user, password, "", callback); 
+}
+
+function loginHandler (code) {
+    if (code) {
+        // login failed, print error
+        throw new Error("There was an issue in the login process: " + wialon.core.Errors.getErrorText(code));
+    }
+    else {
+    	initEnv();
+    }
 }
 
 /**
@@ -100,7 +109,7 @@ function gurtam_maps_options(opts) {
 		opts = new Object;
 
 	opts.maxExtent = new OpenLayers.Bounds(-20037508.3427892,-20037508.3427892,20037508.3427892,20037508.3427892);
-	opts.numZoomLevels = 19;
+	opts.numZoomLevels = 10;
 	opts.maxResolution = 156543.0339;
 	opts.units = 'm';
 	opts.projection = "EPSG:900913";
@@ -118,28 +127,6 @@ function login(code) {
 		return;
 	}
 	initEnv();
-}
-
-/**
-* Init text and styles
-*/
-function initControls() {	
-	// IE style fix	
-	if(navigator.appVersion.indexOf("MSIE 10") == -1 && navigator.appVersion.indexOf("MSIE 9") == -1 && navigator.appVersion.indexOf("MSIE") != -1) {
-		var headerHeight = $("#header").height();
-		document.getElementById("content").style.top = headerHeight+1;
-		$("#name_col").width(150);
-		
-		var resize = function(){
-			var headerHeight = $("#header").height()+1;
-			var windowHeight = $(window).innerWidth() || document.body.clientHeight;			
-			$("#content").height(windowHeight-headerHeight);
-		};
-		resize();			
-		window.onresize=function(){
-			resize();
-		};			
-	}
 }
 
 /**
@@ -235,12 +222,16 @@ function showUnit() {
 		return;
 	}		
 	// if map available - add to map
-	if(map)
+	if(map){
 		createUnitMarker(unit);
-		// listen unit event
+		if (unit.getPosition()) {
+			map.setCenter(new OpenLayers.LonLat(unit.getPosition().x, unit.getPosition().y), 13);
+		}
+	}
+	// listen unit event
 	addUnitListener(unit);
 	
-	goToMarker(unitId);
+	goToMarker(unit.getId());
 	// center unit on map
 	$("a.row-name").click(function(e) {
 		var id = e.currentTarget.id.substr(10);		
@@ -257,9 +248,10 @@ function showUnit() {
  * @returns unit found.
  */
 function findUnitById(units, unitId) {
+	var decodedUnitId = decodeURI(unitId);
 	for(var i=0;i<units.length;i++) {	
 		var unitItem = units[i];
-		if (unitItem.getId().toString() === unitId) {
+		if (unitItem.getName() === decodedUnitId) {
 			return unitItem; 	
 		}
 	}
@@ -417,20 +409,10 @@ function setLocaleDateTime () {
 * Initialize
 */ 
 $(document).ready(function () {	
-	var url = get_url_parameter("baseUrl");
-	if (!url) 
-		url = get_url_parameter("hostUrl");
-	if (!url)
-		return null;
-	url += "/wsdk/script/wialon.js";
-	
-	LANG = get_url_parameter("lang");
-	if ((!LANG) || ($.inArray(LANG, ["en", "ru"]) == -1))
-		LANG = "en";		
-	$.localise('lang/', {language: LANG});
-	initControls();
+	$.localise('lang/', {language: "en"});
+	//initControls();
 		
-	load_script(url, init_sdk);		
+	load_wsdk("https://hst-api.wialon.com/wsdk/script/wialon.js", init_sdk);		
 	
 });
 

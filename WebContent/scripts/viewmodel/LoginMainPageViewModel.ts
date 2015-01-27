@@ -27,8 +27,7 @@ module Skyguardian {
 				return this.unitList().length > 0;
 			});
 		}
-		
-		
+
 		public openWialonApp = () : void => {
 			if (this.unitList() != undefined && this.unitList().length >0) {
 				window.location.href = Utils.Constants.WIALON_APP+this.userName()+"&sid="+this.wialonSession.sid+"&unitId="+this.selectedUnit().unitId;	

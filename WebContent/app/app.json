@@ -1,0 +1,28 @@
+{
+	"name": "skyguardian_locator",
+	"url_name": "skyguardian-apps",
+	"title": "Skyguardian Locator",
+	"description": "Represents basic user interface created on the basis of Wialon Kit tools. The basic interface includes main tracking capabilities: the available tracking a unit, the possibility to track it on the map in real time and check its speed indicators, etc.",
+	"author": {
+		"name": "Skyguardian",
+		"url": "www.skyguardian.us"
+	},
+	"modules": [
+		"sdk"
+	],
+	"release_date": "27-01-2015",
+	"version": "3.0",
+	"keywords": [
+		"skyguardian",
+		"skyguardian-apps"
+	],
+	"browser": {
+		"ie": "9+",
+		"opera": "10+",
+		"safari": "5+",
+		"chrome": "20+",
+		"firefox": "15+"
+	},
+	"logo": "skyguardian_logo.png",
+	"images_path": "img"
+}
