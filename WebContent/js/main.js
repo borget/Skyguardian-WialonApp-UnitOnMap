@@ -4,14 +4,15 @@ var Skyguardian;
     var AppViewModel = (function () {
         function AppViewModel() {
         	this.unitId = "";
-        	this.userName = "";
-            this.unitName = "";
-            this.unitIconUrl = "";
+        	this.userName = ko.observable();
+            this.unitName = ko.observable();
+            this.unitIconUrl = ko.observable();
             this.unitLocation = ko.observable();
             this.unitSpeed = ko.observable();
             this.unitTimeOfLstMsg = ko.observable();
-            this.unitLstMsgReport = ko.observable(); 
+            this.ignition = ko.observable(); 
             this.hasError = ko.observable();
+            this.messageText = ko.observable();
         }
         return AppViewModel;
     })();
@@ -77,23 +78,30 @@ function load_wsdk(src, callback) {
 }
 /// Init SDK
 function init_sdk () {
-	var user = get_url_parameter("user");
-	var password = get_url_parameter("password");
-	if(!user || !password)
+	var token = get_url_parameter("token");
+	if(!token)
 		throw new Error("Expected user/password parameters are not present.");
-	doLogin(user, password, loginHandler);
+	doLogin(token, null, loginHandler);
 }
 
 
-function doLogin (user, password, callback) {
-    var session = wialon.core.Session.getInstance(); // get instance of current Session
+function doLogin (token, notInUse, callback) {
+    /*var session = wialon.core.Session.getInstance(); // get instance of current Session
     session.initSession("https://hst-api.wialon.com"); // initialize Wialon session
-  	session.login(user, password, "", callback); 
+  	session.login(user, password, "", callback);*/
+	//or login to wialon using our token
+	wialon.core.Session.getInstance().initSession("http://hst-api.wialon.com");
+
+	wialon.core.Session.getInstance().loginToken(token, "", callback);
 }
+
+
 
 function loginHandler (code) {
     if (code) {
         // login failed, print error
+    	Skyguardian.appViewModel.hasError(true);
+    	Skyguardian.appViewModel.messageText("["+wialon.core.Errors.getErrorText(code)+"]");
         throw new Error("There was an issue in the login process: " + wialon.core.Errors.getErrorText(code));
     }
     else {
@@ -335,7 +343,7 @@ function redrawUnit(e) {
 		setUnitSpeed(unit);
 	} else if (type == "changeLastMessage") {		
 		setUnitTimeOfLstMsg(unit);
-		setReportParameters(unit);
+		setIgnition(unit);
 	} else if (type == "changeIcon") {		
 		var imgUrl = unit.getIconUrl();
 		$("#unit_img_" + unit.getId() + " img").attr("src",imgUrl);
@@ -410,8 +418,8 @@ function setLocaleDateTime () {
 */ 
 $(document).ready(function () {	
 	$.localise('lang/', {language: "en"});
-	//initControls();
-		
+	// Initialize knockout.js
+	ko.applyBindings(Skyguardian.appViewModel);
 	load_wsdk("https://hst-api.wialon.com/wsdk/script/wialon.js", init_sdk);		
 	
 });
@@ -419,15 +427,13 @@ $(document).ready(function () {
 function knockoutjsInit(unit) {
 	var userName = wialon.core.Session.getInstance().getCurrUser().getName();
 	Skyguardian.appViewModel.unitId = unit.getId();
-	Skyguardian.appViewModel.userName = userName;
-	Skyguardian.appViewModel.unitName = unit.getName();
-	Skyguardian.appViewModel.unitIconUrl = unit.getIconUrl();
-	// Activates knockout.js
-	ko.applyBindings(Skyguardian.appViewModel);
+	Skyguardian.appViewModel.userName(userName);
+	Skyguardian.appViewModel.unitName(unit.getName());
+	Skyguardian.appViewModel.unitIconUrl(unit.getIconUrl());
 	setUnitLocation(unit);
 	setUnitSpeed(unit);
 	setUnitTimeOfLstMsg(unit);
-	setReportParameters(unit);
+	setIgnition(unit);
 }
 
 function setUnitLocation(unit) {
@@ -458,11 +464,19 @@ function setUnitTimeOfLstMsg(unit) {
 	Skyguardian.appViewModel.unitTimeOfLstMsg(tm);
 }
 
-function setReportParameters(unit) {
-	var params = undefined;
+function setIgnition(unit) {
 	var lastMessage = unit.getLastMessage();
-	if(lastMessage)
-		params = lastMessage.p;
-	if (params) 
-		Skyguardian.appViewModel.unitLstMsgReport(params);
+	Skyguardian.appViewModel.ignition("Apagado");
+	if(lastMessage && lastMessage.p) {
+		var egParam = lastMessage.p.EG;
+		var motionStatus = lastMessage.p.motion_status;
+		var state = lastMessage.p.state;
+		var engine = lastMessage.p.engine;
+		if((egParam && egParam == 1) 
+				|| (motionStatus && (motionStatus == 33 || motionStatus == 34))
+				|| (state && (state == 33 || state == 34))
+				|| (engine && engine == 1)) {
+			Skyguardian.appViewModel.ignition("Encendido");
+		} 
+	}
 }
